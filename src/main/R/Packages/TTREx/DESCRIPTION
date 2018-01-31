@@ -1,0 +1,10 @@
+Package: TTREx
+Title: TTREx
+Description: Extra functions for the TTR Pakcage.
+Version: 0.1
+Authors: Stergios Marinopoulos <stergios_marinopoulos@yahoo.com>
+Maintainer: Stergios Marinopoulos <stergios_marinopoulos@yahoo.com>
+Depends:
+    R (>= 3.0.2)
+License: MIT
+LazyData: true

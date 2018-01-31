@@ -1,0 +1,49 @@
+<h1>This area is for code that is created as R packages</h1>
+
+<h2>How to create a R package</h2>
+
+<p>Watch this <a href="https://www.youtube.com/watch?v=rmiCnQEnB3g" title="youtube.com">video</a> for the simplest way possible to create a basic empty package.</p>
+
+<h2>Basic Steps on how to create a package (from the Video)</h2>
+
+<h3>Operations in R:</h3>
+
+<pre><code>R&gt; install.packages("devtools")
+R&gt; library(devtools)
+R&gt; setwd("~/IB/securities/src/main/R/Packages")
+R&gt; create("TTREx")
+</code></pre>
+
+<h3>Operations in a bash shell:</h3>
+
+<pre><code>bash&gt; cd ~/IB/securities/src/main/R/Packages/TTRex
+bash&gt; rename R/TTRex-package.R  PMO.R
+</code></pre>
+
+<h3>Operations in an editor:</h3>
+
+<pre><code>vim&gt; edit the DESCRIPTION file as show inthe video
+vim&gt; edit PMO.R to have your code
+vim&gt; edit PMO.R to put in all the meta data required to be a package (see video for details, also existing examples in the TTR package)
+</code></pre>
+
+<h3>Install Package:</h3>
+
+<h5>(This step you will repeat continuously as you develop and test your package.)</h5>
+
+<pre><code>bash&gt; cd ~/IB/securities/src/main/R/Packages 
+bash&gt; R CMD INSTALL --no-multiarch TTREx
+</code></pre>
+
+<h3>(Re)Build documentation in R:</h3>
+
+<h5>(This step you will repeat continuously as you develop and test your package.)</h5>
+
+<pre><code>R&gt; library(devtools)
+R&gt; setwd("~/IB/securities/src/main/R/Packages/TTREx")
+R&gt; document()
+</code></pre>
+
+<h4>Continue to develop PMO.R file</h4>
+
+<p>As you modify the code and improve the documentation, repeat the <strong>INSTALL</strong> and <strong>DOCUMENTATION</strong> steps as necessary.</p>
