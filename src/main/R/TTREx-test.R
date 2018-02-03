@@ -22,7 +22,7 @@ OHLC=getSymbols('SPY',   from='2012-01-01', to='2013-12-31', adjust=TRUE, auto.a
 
 # Create some xts objects for drawing horizontal lines in chartSeries()
 # This is a work around as chartSeries() does not support the addition of 
-# grahpics primitives by the end user.  We are creating new timeseries objects,
+# graphics primitives by the end user.  We are creating new time series objects,
 # but will fill them with constant values where we desire the horizontal lines
 # to be.
 l0  = .xts(rep( 0,nrow(OHLC)), .index(OHLC))

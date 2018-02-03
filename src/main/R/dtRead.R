@@ -2,13 +2,13 @@
 ############################################################
 # dtRead.R - A program to read in OHLC CSV files using Google's "data.table"
 # library.  "data.table" is a replacement for "data.frame" that is more
-# flexible. More importanly for my purposes it is faster, especially when it
+# flexible. More importantly for my purposes it is faster, especially when it
 # comes to reading CSV files (I have tested at 1 to 2 orders of magnitude
 # faster.) data.table is also worth learning because it is implemented as a
 # derived class of data.frame. So any library that takes a data.frame object
-# (which is all financilay libraries practically), can take a data.table
-# object.  This will be espically helpful when running large ML models time and
-# again where data loading can take a signifcant portion of the time.  Finally,
+# (which is all financially libraries practically), can take a data.table
+# object.  This will be especially helpful when running large ML models time and
+# again where data loading can take a significant portion of the time.  Finally,
 # data.table brings a new paradigm to R for shaping and filtering data which is
 # very powerful.
 #
@@ -31,12 +31,12 @@ library(fasttime)
 Sys.setenv(TZ="UTC")
 
 ############################################################
-# The set of global variables that must be initalized:
+# The set of global variables that must be initialized:
 #
 #    fileName.csv <- "vwap-ESYM-1min-20121217-20130308.csv"
 #
 ############################################################
-# How to run this script from the unix command line:
+# How to run this script from the Unix command line:
 #
 # R CMD BATCH --no-save --no-restore '--args initDate="2013-09-09" endDate="2013-09-13" unit1Target=1.0 unit2Target=2.0 fileName.csv="vwap-ESYM-1min-20130617-20130913.csv" ' ~/IB/securities/src/main/R/qsLearn05.R  week013.out
 #
@@ -62,7 +62,7 @@ if ( length(args)==0 ) {
 
 } else {
   # Process command line arguments
-  # Command line arguments supplied.  Set defaults bassed on command line args here.
+  # Command line arguments supplied.  Set defaults based on command line args here.
 
   for(i in 1:length(args)){
     # Cycle through each element of the list and evaluate the expressions.
@@ -89,8 +89,8 @@ outputDirName <- "~/runTime/longTermArchive"
 machineInfo <- function() {
   ############################################################
   # Set machine specific values, usually these are file system locations.
-  # This code runs on different people's compters, and this is an attempt
-  # to accomodate the various environments.
+  # This code runs on different people's computers, and this is an attempt
+  # to accommodate the various environments.
   # For a new computer, run the code below in your R interpreter, capture the
   # output, and create a new section in the if-then-else block below specific
   # to your computer.
@@ -99,7 +99,7 @@ machineInfo <- function() {
   #
   # TODO: Put this routine in a .R file and have all other scripts
   # load it, but there is a problem with finding the path to load it!
-  # Turning this into a real R package solvea the path problem.
+  # Turning this into a real R package solves the path problem.
 
   actualMachine  <- Sys.info()[["nodename"]]
 
@@ -171,12 +171,12 @@ flush.console()
 # 10   ES.VWM1STD The closing price - 1 * stdev
 # 11   ES.VWM2STD The closing price - 2 * stdev
 # 12   ES.BW05    The 2 pole buterworth filter w/ parameter=5
-# 13   ES.EMA05   The 5 period exponentail moving average 
+# 13   ES.EMA05   The 5 period exponential moving average 
 # 14   ES.KFHI20  The kalman filter of the high price with parameter=20
 # 15   ES.KFLO20  The kalman filter of the low price with parameter=20
 # 16   ES.KFMP20  The middle of the extreme kalman filters (KFHI20 + KFLO20)/2  
 # 17   ES.Signal  The trade entry point.  Where the BW05 crosses over the VWAP.  +1 for long trades, -1 for short trades
-# 18   ES.MFE     The Maximum Favoriable Excursion is the peak profit that a trade might earns should the trade be closed/exited at the optimal point.
+# 18   ES.MFE     The Maximum Favorable Excursion is the peak profit that a trade might earns should the trade be closed/exited at the optimal point.
 #
 #  Columns above are for ES (SP500).  
 #  All columns are then repeated for YM (Dow Industrials) to create columns 19 - 36
