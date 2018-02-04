@@ -6,6 +6,7 @@
 #        If the SQLite database file does not exist it will be created, and the schema will be added to it.
 
 # Created: 3/12/2013
+# Stergios Marinopoulos
 
 # Clear the work space.  (Useful for when running interactively)
 rm(list=ls(all=TRUE))
