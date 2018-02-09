@@ -1,0 +1,302 @@
+---
+title: "longBarsPANative.R Execution Report"
+output:
+  pdf_document:
+    highlight: zenburn
+classoption: landscape
+geometry: margin=0.25in
+---
+## Input Parameters
+Program Name: longBarsPANative.R   
+Ticker: `r ticker`   
+Start Date: `r startDate`    
+End Date:  `r endDate`   
+Bar Size: `r barSizeInMins` Minutes   
+SMA Length:  48 Bars   
+
+## Group Trade Statistics
+
+```{r echo=TRUE, tidy=TRUE, message=FALSE, results='asis'}
+print(xtable(tableTradeStats,
+             digits=c(0,0,2,0,2,0,2),
+             caption=paste("Trade Statistics 1 ---", subsetStr),
+             label="Trade Stats 1"
+            ), 
+      include.rownames=FALSE, include.colnames=FALSE, caption.placement="top", 
+      size="normalsize",
+      type="latex",
+      comment=FALSE
+      )
+```
+
+
+``` {r echo=TRUE, tidy=TRUE, message=FALSE, results='asis'}
+print(xtable(tablePerformanceStats, 
+             digits=c(0,0,3,0,3),
+             caption=paste("Performance Statistics 2 --- ", subsetStr),
+             label="Performance Stats 2" 
+            ), 
+      include.rownames=FALSE, include.colnames=FALSE, caption.placement="top", 
+      size="normalsize",
+      type="latex",
+      comment=FALSE
+      )
+```
+
+
+<!---
+##    Cannot use chart.Posn in RMarkdown, which is too bad.  The following
+##    error is produced:  (it's a bounding box error... nothing to do with
+##    ghostscript - this is the error message as pdfcrop prints it).
+##
+##    cropping /Users/stergios/tmp/report-SPY_files/figure-latex/unnamed-chunk-11.pdf
+##    PDFCROP 1.38, 2012/11/02 - Copyright (c) 2002-2012 by Heiko Oberdiek.
+##    !!! Error: Ghostscript does not report bounding boxes!
+##    ``` {r echo=TRUE}
+##    chart.Posn(Portfolio=strategyStr, Symbol=tickerSymbol)
+##    ```
+-->
+
+\newpage
+
+## MAE/MFE graphs
+
+Use the data from a backtest or production trade to evaluate where stop loss or
+profit taking orders could be added.
+
+### MFE
+* trades on the diagonal axis closed on their highs
+* trades on the vertical axis experienced no positive P&L
+* the horizontal line demonstrates the influence of a stop in this data set
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+chart.ME(strategyStr, Symbol=tickerSymbol, type="MFE")
+```
+
+\newpage
+
+### MAE
+* trades on diagonal axis closed on their lows
+* trades on vertical axis experienced no drawdown
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+chart.ME(strategyStr, Symbol=tickerSymbol, type="MAE")
+```
+
+\newpage
+
+## Performance Summary
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+charts.PerformanceSummary(rets, colorset=bluefocus, main=paste(ticker, strategyStr, "Performance") )
+```
+<!---
+##    The above function combines the follow charts on to one page:
+##    chart.CumReturns(R=rets, colorset=bluefocus, main=paste(ticker, strategyStr, "Cumulative Returns") )
+##    chart.BarVaR(R=rets, colorset=bluefocus, main=paste(ticker, strategyStr, "Periodic Returns") )
+##    chart.TimeSeries(R=rets, colorset=bluefocus, main=paste(ticker, strategyStr, "Drawdown") )
+-->
+
+## Full Graph
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+messageStr = paste( ticker, "-", barSizeInMins, "min", sep="")
+epSS   = ep
+explSS = expl
+tpSS   = tp
+chartSeries(OHLCV(S), 
+            name=messageStr,
+            type="candlesticks",
+            theme=chartTheme(theme='white', up.col='green', dn.col='red'),
+            TA=taEnhanced
+)
+```
+
+## Weekly Graphs
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+for(i in 1:length(allWeeksSS) ) {
+  epSS   = ep[allWeeksSS[i]]
+  explSS = expl[allWeeksSS[i]]
+  tpSS   = tp[allWeeksSS[i]]
+
+  chartSeries(OHLCV(S), 
+              subset=allWeeksSS[i],
+              name=messageStr,
+              type="candlesticks",
+              theme=chartTheme(theme='white', up.col='green', dn.col='red'),
+              TA=taEnhanced
+  )
+}
+```
+
+\newpage
+
+## Chart Histogram
+<!--- Note: chart.Histogram has a bad habit of failing if there is only one trade in ptstats.  -->
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis', fig.width=10, fig.height=7.5}
+if(nrow(ptstats)>1) {
+  chart.Histogram(ptstats$Pct.Net.Trading.PL, methods=c('add.normal'), main='SMA48w2Away returns')
+} else {
+  PerformanceAnalytics:::textplot("There was only 1 trade (or maybe none at all???).  No sense in showing a histogram!", cex=0.75)
+}
+```
+
+\newpage
+
+## Trade Quantiles
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis'}
+print(xtable(tradeQuantiles(Portfolio=strategyStr, Symbol=tickerSymbol, scale='percent', probs=c(.5,.9,.99)),
+             digits=3,
+             caption=paste("Trade Quantiles --- ", subsetStr),
+             label="Trade Quantiles" 
+            ), 
+      include.rownames=TRUE, include.colnames=TRUE, caption.placement="top", 
+      type="latex",
+      comment=FALSE
+      )
+```
+
+\newpage
+
+## Net Trade Statistics
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis' }
+t2=data.frame(
+  a=names(tstats)[1:15],  b=as.numeric(tstats[1,1:15]),
+  c=names(tstats)[16:30], d=as.numeric(tstats[1,16:30])
+)
+PerformanceAnalytics:::textplot(t2, show.rownames=FALSE, show.colnames=FALSE, cex=1.00)
+```
+
+\newpage
+
+## Per Trade Statistics
+
+<!---
+Other font sizes to try can be found here:
+https://en.wikibooks.org/wiki/LaTeX/Fonts#Sizing_text
+size          -  standard classes, proc        - AMS classes, memoir            -  slides                 beamer
+              -  [10pt]  - [11pt]   - [12pt]   - [10pt]   - [11pt]   - [12pt]   -          - [10pt]   - [11pt]   - [12pt]
+\tiny         - 6.80565  - 7.33325  - 7.33325  - 7.33325  - 7.97224  - 8.50012  - 17.27505 - 5.31258  - 6.37509  - 6.37509
+\scriptsize   - 7.97224  - 8.50012  - 8.50012  - 7.97224  - 8.50012  - 9.24994  - 20.73755 - 7.43760  - 8.50012  - 8.50012
+\footnotesize - 8.50012  - 9.24994  - 10.00002 - 8.50012  - 9.24994  - 10.00002 - 20.73755 - 8.50012  - 9.24994  - 10.00002
+\small        - 9.24994  - 10.00002 - 10.95003 - 9.24994  - 10.00002 - 10.95003 - 20.73755 - 9.24994  - 10.00002 - 10.95003
+\normalsize   - 10.00002 - 10.95003 - 11.74988 - 10.00002 - 10.95003 - 11.74988 - 24.88382 - 10.00002 - 10.95003 - 11.74988
+\large        - 11.74988 - 11.74988 - 14.09984 - 10.95003 - 11.74988 - 14.09984 - 29.86258 - 11.74988 - 11.74988 - 14.09984
+\Large        - 14.09984 - 14.09984 - 15.84985 - 11.74988 - 14.09984 - 15.84985 - 35.82510 - 14.09984 - 14.09984 - 16.24988
+\LARGE        - 15.84985 - 15.84985 - 19.02350 - 14.09984 - 15.84985 - 19.02350 - 43.00012 - 16.24988 - 16.24988 - 19.50362
+\huge         - 19.02350 - 19.02350 - 22.82086 - 15.84985 - 19.02350 - 22.82086 - 51.60014 - 19.50362 - 19.50362 - 23.39682
+\Huge         - 22.82086 - 22.82086 - 22.82086 - 19.02350 - 22.82086 - 22.82086 - 51.60014 - 23.39682 - 23.39682 - 23.39682
+-->
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis'}
+print(xtable(ptstatsStr[,perTradeStats1], 
+             digits=3,
+             caption=paste("Flat to Flat Per-Trade Statistics 1 --- ", subsetStr),
+             label="Flat to Flat Per-Trade Statistics 1" 
+            ), 
+      include.rownames=FALSE, include.colnames=TRUE, caption.placement="top", 
+      type="latex",
+      size="large",
+      comment=FALSE
+      )
+print(xtable(ptstatsStr[,perTradeStats2], 
+             digits=3,
+             caption=paste("Flat to Flat Per-Trade Statistics 2 --- ", subsetStr),
+             label="Flat to Flat Per-Trade Statistics 2" 
+            ), 
+      include.rownames=FALSE, include.colnames=TRUE, caption.placement="top", 
+      type="latex",
+      size="large",
+      comment=FALSE
+      )
+print(xtable(ptstatsStr[,perTradeStats3], 
+             digits=3,
+             caption=paste("Flat to Flat Per-Trade Statistics 3 --- ", subsetStr),
+             label="Flat to Flat Per-Trade Statistics 3" 
+            ), 
+      include.rownames=FALSE, include.colnames=TRUE, caption.placement="top", 
+      type="latex",
+      size="large",
+      comment=FALSE
+      )
+```
+
+\newpage
+
+## Transactions
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis' }
+print(xtable(as.data.frame(transactions),
+             caption="Transactions",
+             label="Transactions"
+            ), 
+      floating=FALSE,
+      include.rownames=TRUE, include.colnames=TRUE, caption.placement="top", 
+      type="latex",
+      size="large",
+      comment=FALSE
+      )
+```
+
+\newpage
+
+## Order Book
+<!---
+I wish I could make long tables span multiple pages.  One of the
+following should work, but neither does.
+
+      tabular.environment='longtable'
+      tabular.environment='tabu'
+
+It produces the following error: 
+
+! LaTeX Error: Environment longtable undefined.
+
+Which seems like it would be simple to fix by installing the longtable
+package.  But I've wasted enough time this morning trying to do so.
+
+output file: reportNative.knit.md
+
+/usr/local/bin/pandoc reportNative.utf8.md 
+    --to latex 
+    --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash-implicit_figures 
+    --output ~/tmp/reportNative-SPY.pdf 
+    --template /Library/Frameworks/R.framework/Versions/3.1/Resources/library/rmarkdown/rmd/latex/default.tex 
+    --highlight-style zenburn 
+    --latex-engine pdflatex 
+
+
+! LaTeX Error: Environment longtable undefined.
+
+References to help with installing this problem later on:
+
+https://en.wikibooks.org/wiki/LaTeX/Tables
+
+https://en.wikibooks.org/wiki/LaTeX/Installing_Extra_Packages#Manual_installation
+
+      ( floating=FALSE, # should be false when using longtable. )
+
+-->
+
+``` {r echo=FALSE, tidy=TRUE, message=FALSE, results='asis' }
+numberOBRows = nrow(obookDF)
+rowsPerPage  = 30
+startRows    = seq(1, numberOBRows, rowsPerPage)
+endRows      = startRows+rowsPerPage
+endRows[length(endRows)] = numberOBRows
+
+for(i in 1:length(startRows) ) {
+  print(xtable(obookDF[startRows[i]:startRows[i]:endRows[i], ],
+               caption="Order Book",
+               label="Order Book"
+              ), 
+        floating=FALSE,
+        include.rownames=TRUE, include.colnames=TRUE, caption.placement="top", 
+        type="latex",
+        size="large",
+        comment=FALSE
+        )
+}
+```
